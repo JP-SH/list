@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
+// chalk is a node library that we can use to highlight the different content based on what it is
+const chalk = require('chalk');
 
 // these next 2 lines are for optional #2
-// const util = requir e('util');
+// const util = require('util');
 
 // const lstat = util.promisfy(fs.lstat)
 
@@ -114,6 +116,10 @@ fs.readdir(process.cwd(), async (err, filenames) => {
   for (let stats of allStats) {
     const index = allStats.indexOf(stats);
 
-    console.log(filenames[index], stats.isFile());
+    if (stats.isFile()) {
+      console.log(filenames[index]);
+    } {
+      console.log(chalk.magenta(filenames[index]));
+    }
   }
 });
