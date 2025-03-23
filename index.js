@@ -2,45 +2,118 @@
 
 const fs = require('fs');
 
+// these next 2 lines are for optional #2
+// const util = requir e('util');
+
+// const lstat = util.promisfy(fs.lstat)
+
 // the reason we dont require 'process.cwd' is because the process module is one of the only modules automatically added to the global scope of every project.
-fs.readdir(process.cwd(), (err, filenames) => {
+// fs.readdir(process.cwd(), (err, filenames) => {
+//   if (err) {
+//     console.log(err);
+//   }
+
+//   // how to get items in the highlighted to show what they are such as a file or folder
+
+//    A BAD WAY TO WRITE IT WOULD BE
+//   for (let filename of filenames) {
+//     fs.lstat(filename, (err, stats) => {
+//       if (err) {
+//         console.log(err);
+//       }
+
+//       console.log(filename, stats.isFile());
+//     });
+//   }
+// });
+
+// fs.readdir(process.cwd(), (err, filenames) => {
+//   if (err) {
+//     console.log(err);
+//   }
+//    // optional solution
+//    const allStats = Array(filenames.length).fill(null);
+//    for (let filename of filenames) {
+//      const index = filenames.indexOf(filename);
+//    fs.lstat(filename, (err, stats) => {
+//      if (err) {
+//        console.log(err);
+//      }
+
+//      allStats[index] = stats;
+
+//      const ready = allStats.every((stats) => {
+//        return stats;
+//      });
+
+//      if (ready) {
+//        allStats.forEach((stats, index) => {
+//          console.log(filenames[index], stats.isFile());
+//        });
+//      }
+//    });
+//  }
+
+// best way to list all contents and higlight different things based on what they are such as a file or folder
+
+
+// fs.readdir(process.cwd(), (err, filenames) => {
+//   if (err) {
+//     console.log(err);
+//   }
+
+// });
+
+// optional #1
+// a way to wrap it in a promise so it returns the contents and what kinds of thing it is once its all complete
+// const lstat = filename => {
+//   return new Promise((resolve, reject) => {
+//     fs.lstat(filename, (err, stats) => {
+//       if (err) {
+//         reject(err);
+//       }
+
+//       resolve(stats);
+//     });
+//   });
+// };
+
+// Method #3
+// const { lstat } = fs.promises;
+
+// fs.readdir(process.cwd(), async (err, filenames) => {
+//   if (err) {
+//     console.log(err);
+//   }
+
+//   for (let filename of filenames) {
+//     try {
+//     const stats = await lstat(filename);
+
+//     console.log(filename, stats.isFile())
+//   } catch (err) {
+//     console.log(err);
+//   }
+//  }
+// });
+
+// best method
+const { lstat } = fs.promises;
+
+fs.readdir(process.cwd(), async (err, filenames) => {
   if (err) {
     console.log(err);
   }
 
-  // how to get items in the highlighted to show what they are such as a file or folder
+  const statPromises = filenames.map(filename => {
+    return lstat(filename);
+  });
 
-  //  A BAD WAY TO WRITE IT WOULD BE
-  // for (let filename of filenames) {
-  //   fs.lstat(filename, (err, stats) => {
-  //     if (err) {
-  //       console.log(err);
-  //     }
+  const allStats = await Promise.all(statPromises);
 
-  //     console.log(filename, stats.isFile());
-  //   });
-  // }
+  for (let stats of allStats) {
+    const index = allStats.indexOf(stats);
 
-  // optional solution
-  const allStats = Array(filenames.length).fill(null);
-    for (let filename of filenames) {
-      const index = filenames.indexOf(filename);
-    fs.lstat(filename, (err, stats) => {
-      if (err) {
-        console.log(err);
-      }
-
-      allStats[index] = stats;
-
-      const ready = allStats.every((stats) => {
-        return stats;
-      });
-
-      if (ready) {
-        allStats.forEach((stats, index) => {
-          console.log(filenames[index], stats.isFile());
-        });
-      }
-    });
+    console.log(filenames[index], stats.isFile());
   }
 });
