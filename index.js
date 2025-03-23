@@ -4,6 +4,9 @@ const fs = require('fs');
 // chalk is a node library that we can use to highlight the different content based on what it is
 const chalk = require('chalk');
 
+// this is needed for argv. To be able to read out contents from anywhere specified not just the current directory
+const path = require('path');
+
 // these next 2 lines are for optional #2
 // const util = require('util');
 
@@ -102,13 +105,17 @@ const chalk = require('chalk');
 // best method
 const { lstat } = fs.promises;
 
-fs.readdir(process.cwd(), async (err, filenames) => {
+// argv has some information about how our program was executed. It creates an array with 2 elements and if something was entered such as where to read out files from it will be the 3rd element
+const targetDir = process.argv[2] || process.cwd();
+
+
+fs.readdir(targetDir, async (err, filenames) => {
   if (err) {
     console.log(err);
   }
 
   const statPromises = filenames.map(filename => {
-    return lstat(filename);
+    return lstat(path.join(targetDir, filename));
   });
 
   const allStats = await Promise.all(statPromises);
